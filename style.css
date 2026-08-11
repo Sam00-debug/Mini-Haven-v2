@@ -1,0 +1,186 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #111;
+
+    touch-action: none;
+
+    font-family: Arial, sans-serif;
+}
+
+#game {
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    touch-action: none;
+}
+
+
+/* =========================
+   PLAYER INFO
+========================= */
+
+#playerInfo {
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+
+    padding: 8px 13px;
+
+    color: white;
+
+    background: rgba(0, 0, 0, .5);
+
+    border-radius: 10px;
+
+    z-index: 20;
+
+    pointer-events: none;
+}
+
+
+/* =========================
+   JOYSTICK
+========================= */
+
+#joystick {
+    position: fixed;
+
+    left: 25px;
+    bottom: 25px;
+
+    width: 140px;
+    height: 140px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.10);
+
+    border: 2px solid rgba(255,255,255,.25);
+
+    backdrop-filter: blur(5px);
+
+    z-index: 20;
+
+    touch-action: none;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+#joystickKnob {
+    position: absolute;
+
+    width: 60px;
+    height: 60px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.7);
+
+    border: 2px solid rgba(255,255,255,.9);
+
+    pointer-events: none;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.35);
+}
+
+
+/* =========================
+   ZOOM
+========================= */
+
+#zoomControls {
+    position: fixed;
+
+    right: 20px;
+    bottom: 25px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    z-index: 20;
+}
+
+#zoomControls button {
+
+    width: 50px;
+    height: 50px;
+
+    border: 0;
+
+    border-radius: 14px;
+
+    background: rgba(0,0,0,.55);
+
+    color: white;
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    touch-action: manipulation;
+}
+
+#zoomControls button:active {
+    transform: scale(.92);
+
+    background: rgba(255,255,255,.25);
+}
+
+
+/* =========================
+   DESKTOP
+========================= */
+
+@media (min-width: 700px) and (pointer: fine) {
+
+    #joystick {
+        display: none;
+    }
+}
+
+
+/* =========================
+   LANDSCAPE
+========================= */
+
+@media (
+    orientation: landscape
+) and (
+    max-width: 900px
+) {
+
+    #joystick {
+        left: 25px;
+        bottom: 18px;
+    }
+
+    #zoomControls {
+        right: 18px;
+        bottom: 18px;
+    }
+}
