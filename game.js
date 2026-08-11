@@ -2641,6 +2641,228 @@ function startGameChat() {
 
 startGameChat();       
 
+   /* =====================================================
+   PLAYER CHAT BUBBLES
+===================================================== */
+
+const chatBubbles =
+    document.getElementById("chatBubbles");
+
+const activeChatBubbles =
+    new Map();
+
+const CHAT_BUBBLE_DURATION =
+    5000;
+
+
+/* =====================================================
+   CREATE / UPDATE BUBBLE
+===================================================== */
+
+function showPlayerChatBubble(
+    playerId,
+    playerName,
+    message
+) {
+
+    if (!playerId || !message) {
+        return;
+    }
+
+
+    let bubble =
+        activeChatBubbles.get(
+            String(playerId)
+        );
+
+
+    /*
+       Create bubble if it doesn't exist.
+    */
+
+    if (!bubble) {
+
+        bubble =
+            document.createElement("div");
+
+        bubble.className =
+            "chatBubble";
+
+
+        const name =
+            document.createElement("span");
+
+        name.className =
+            "chatBubbleName";
+
+
+        const text =
+            document.createElement("span");
+
+        text.className =
+            "chatBubbleText";
+
+
+        bubble.appendChild(name);
+
+        bubble.appendChild(text);
+
+
+        chatBubbles.appendChild(
+            bubble
+        );
+
+
+        activeChatBubbles.set(
+            String(playerId),
+            bubble
+        );
+
+    }
+
+
+    const nameElement =
+        bubble.querySelector(
+            ".chatBubbleName"
+        );
+
+    const textElement =
+        bubble.querySelector(
+            ".chatBubbleText"
+        );
+
+
+    nameElement.textContent =
+        playerName || "Unknown";
+
+
+    nameElement.style.color =
+        getChatNameColor(
+            playerName || "Unknown"
+        );
+
+
+    textElement.textContent =
+        message;
+
+
+    /*
+       Reset expiration timer.
+    */
+
+    clearTimeout(
+        bubble._removeTimer
+    );
+
+
+    bubble._removeTimer =
+        setTimeout(
+            function() {
+
+                removePlayerChatBubble(
+                    playerId
+                );
+
+            },
+            CHAT_BUBBLE_DURATION
+        );
+
+}
+
+
+/* =====================================================
+   REMOVE BUBBLE
+===================================================== */
+
+function removePlayerChatBubble(
+    playerId
+) {
+
+    const id =
+        String(playerId);
+
+    const bubble =
+        activeChatBubbles.get(id);
+
+
+    if (!bubble) {
+        return;
+    }
+
+
+    bubble.remove();
+
+
+    activeChatBubbles.delete(id);
+
+}
+
+
+/* =====================================================
+   UPDATE BUBBLE POSITION
+===================================================== */
+
+function updateChatBubble(
+    playerId,
+    screenX,
+    screenY
+) {
+
+    const bubble =
+        activeChatBubbles.get(
+            String(playerId)
+        );
+
+
+    if (!bubble) {
+        return;
+    }
+
+
+    bubble.style.left =
+        screenX + "px";
+
+
+    /*
+       screenY should be the player's
+       head/top position.
+    */
+
+    bubble.style.top =
+        screenY + "px";
+
+}
+
+
+/* =====================================================
+   REMOVE ALL BUBBLES
+===================================================== */
+
+function clearChatBubbles() {
+
+    activeChatBubbles.forEach(
+        function(bubble) {
+
+            if (
+                bubble._removeTimer
+            ) {
+
+                clearTimeout(
+                    bubble._removeTimer
+                );
+
+            }
+
+            bubble.remove();
+
+        }
+    );
+
+
+    activeChatBubbles.clear();
+
+}
+
 /* =====================================================
    MULTIPLAYER
 ===================================================== */
