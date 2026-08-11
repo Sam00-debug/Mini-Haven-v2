@@ -1475,10 +1475,10 @@ aimKnob.id =
     "aimJoystickKnob";
 
     aimJoystick.style.left =
-        `${x - 0}px`;
+        `${x - 70}px`;
 
     aimJoystick.style.top =
-        `${y - 0}px`;
+        `${y - 70}px`;
 
 
     aimJoystick.appendChild(
