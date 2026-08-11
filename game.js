@@ -898,52 +898,23 @@ function drawGridRoads() {
 }
 
 
-/* =====================================================
-   WALKABLE AREA
-===================================================== */
+function pointOnRoad(x, y) {
 
-function pointInside(
-    x,
-    y,
-    box
-) {
-
-    return (
-        x >= box.x &&
-        x <=
-            box.x +
-            box.w &&
-        y >= box.y &&
-        y <=
-            box.y +
-            box.h
-    );
-}
+    const half = ROAD_WIDTH / 2;
 
 
-function pointOnRoad(
-    x,
-    y
-) {
+    /* =================================================
+       HORIZONTAL MAIN ROADS
+    ================================================= */
 
-    const half =
-        ROAD_WIDTH / 2;
-
-
-    /* horizontal roads */
-
-    for (
-        const island of islands
-    ) {
+    for (const island of islands) {
 
         const roadY =
             island.y +
             island.h / 2;
 
         if (
-            Math.abs(
-                y - roadY
-            ) <= half &&
+            Math.abs(y - roadY) <= half &&
             x >= 0 &&
             x <= WORLD_WIDTH
         ) {
@@ -953,20 +924,18 @@ function pointOnRoad(
     }
 
 
-    /* vertical roads */
+    /* =================================================
+       VERTICAL MAIN ROADS
+    ================================================= */
 
-    for (
-        const island of islands
-    ) {
+    for (const island of islands) {
 
         const roadX =
             island.x +
             island.w / 2;
 
         if (
-            Math.abs(
-                x - roadX
-            ) <= half &&
+            Math.abs(x - roadX) <= half &&
             y >= 0 &&
             y <= WORLD_HEIGHT
         ) {
@@ -976,13 +945,11 @@ function pointOnRoad(
     }
 
 
-    /* horizontal connectors */
+    /* =================================================
+       HORIZONTAL CONNECTORS
+    ================================================= */
 
-    for (
-        let row = 0;
-        row < 3;
-        row++
-    ) {
+    for (let row = 0; row < 3; row++) {
 
         const a =
             islands.find(
@@ -1005,14 +972,15 @@ function pointOnRoad(
                     i.col === 2
             );
 
-
-        const y =
+        const roadY =
             a.y +
             a.h / 2;
 
 
+        /* Island 0 → Island 1 */
+
         if (
-            Math.abs(y - y) <= half &&
+            Math.abs(y - roadY) <= half &&
             x >= a.x + a.w - 20 &&
             x <= b.x + 20
         ) {
@@ -1021,7 +989,10 @@ function pointOnRoad(
         }
 
 
+        /* Island 1 → Island 2 */
+
         if (
+            Math.abs(y - roadY) <= half &&
             x >= b.x + b.w - 20 &&
             x <= c.x + 20
         ) {
@@ -1031,24 +1002,65 @@ function pointOnRoad(
     }
 
 
+    /* =================================================
+       VERTICAL CONNECTORS
+    ================================================= */
+
+    for (let col = 0; col < 3; col++) {
+
+        const a =
+            islands.find(
+                i =>
+                    i.row === 0 &&
+                    i.col === col
+            );
+
+        const b =
+            islands.find(
+                i =>
+                    i.row === 1 &&
+                    i.col === col
+            );
+
+        const c =
+            islands.find(
+                i =>
+                    i.row === 2 &&
+                    i.col === col
+            );
+
+        const roadX =
+            a.x +
+            a.w / 2;
+
+
+        /* Island 0 → Island 1 */
+
+        if (
+            Math.abs(x - roadX) <= half &&
+            y >= a.y + a.h - 20 &&
+            y <= b.y + 20
+        ) {
+
+            return true;
+        }
+
+
+        /* Island 1 → Island 2 */
+
+        if (
+            Math.abs(x - roadX) <= half &&
+            y >= b.y + b.h - 20 &&
+            y <= c.y + 20
+        ) {
+
+            return true;
+        }
+    }
+
+
     return false;
 }
-
-
-function isWalkable(
-    x,
-    y
-) {
-
-    if (
-        x < 0 ||
-        y < 0 ||
-        x > WORLD_WIDTH ||
-        y > WORLD_HEIGHT
-    ) {
-
-        return false;
-    }
 
 
     /* Islands are walkable */
