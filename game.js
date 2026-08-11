@@ -2293,7 +2293,11 @@ function addChatMessage(message) {
         wrapper
     );
 
-
+showPlayerChatBubble(
+    message.user,
+    message.displayName || message.user,
+    message.msg
+);
     /*
        Keep chat at bottom if
        user is already near bottom.
@@ -2314,11 +2318,7 @@ function addChatMessage(message) {
     }
 
 }
-showPlayerChatBubble(
-    message.user,
-    message.displayName || message.user,
-    message.msg
-);
+
 
 
 /* =====================================================
