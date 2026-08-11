@@ -1209,177 +1209,216 @@ window.addEventListener(
 
 
 /* =====================================================
-   LEFT MOVEMENT JOYSTICK
+   DYNAMIC MOVEMENT JOYSTICK
 ===================================================== */
 
-const joystick =
-    document.getElementById(
-        "joystick"
-    );
+let movementJoystick = null;
+let movementKnob = null;
 
-const joystickKnob =
-    document.getElementById(
-        "joystickKnob"
-    );
-
-
-let joystickActive = false;
-let joystickPointer = null;
+let movementPointer = null;
+let movementActive = false;
 
 let joystickX = 0;
 let joystickY = 0;
 
+const MOVEMENT_RADIUS = 55;
 
-const JOYSTICK_RADIUS = 35;
+function createMovementJoystick(x, y, pointerId) {
 
+    destroyMovementJoystick();
 
-function updateMovementJoystick(
-    clientX,
-    clientY
-) {
+    movementActive = true;
+    movementPointer = pointerId;
+
+    movementJoystick = document.createElement("div");
+    movementKnob = document.createElement("div");
+
+    movementJoystick.id = "joystick";
+    movementKnob.id = "joystickKnob";
+
+    movementJoystick.style.left = `${x - 70}px`;
+    movementJoystick.style.top = `${y - 70}px`;
+    movementJoystick.style.bottom = "auto";
+
+    movementJoystick.appendChild(movementKnob);
+
+    document.body.appendChild(movementJoystick);
+}
+
+function updateMovementJoystick(clientX, clientY) {
+
+    if (!movementJoystick || !movementKnob) return;
 
     const r =
-        joystick.getBoundingClientRect();
-
+        movementJoystick.getBoundingClientRect();
 
     const centerX =
-        r.left +
-        r.width / 2;
+        r.left + r.width / 2;
 
     const centerY =
-        r.top +
-        r.height / 2;
-
+        r.top + r.height / 2;
 
     let dx =
-        clientX -
-        centerX;
+        clientX - centerX;
 
     let dy =
-        clientY -
-        centerY;
-
+        clientY - centerY;
 
     const distance =
-        Math.hypot(
-            dx,
-            dy
-        );
+        Math.hypot(dx, dy);
 
-
-    if (
-        distance >
-        JOYSTICK_RADIUS
-    ) {
+    if (distance > MOVEMENT_RADIUS) {
 
         dx =
-            dx /
-            distance *
-            JOYSTICK_RADIUS;
+            dx / distance *
+            MOVEMENT_RADIUS;
 
         dy =
-            dy /
-            distance *
-            JOYSTICK_RADIUS;
+            dy / distance *
+            MOVEMENT_RADIUS;
     }
 
-
     joystickX =
-        dx /
-        JOYSTICK_RADIUS;
+        dx / MOVEMENT_RADIUS;
 
     joystickY =
-        dy /
-        JOYSTICK_RADIUS;
+        dy / MOVEMENT_RADIUS;
 
-
-    joystickKnob.style.transform =
+    movementJoystick
+        .querySelector("#joystickKnob")
+        .style.transform =
         `translate(${dx}px, ${dy}px)`;
 }
 
+function destroyMovementJoystick() {
 
-function resetMovementJoystick() {
-
-    joystickActive = false;
-
-    joystickPointer = null;
+    movementActive = false;
+    movementPointer = null;
 
     joystickX = 0;
     joystickY = 0;
 
+    if (movementJoystick) {
+        movementJoystick.remove();
+    }
+
+    movementJoystick = null;
+    movementKnob = null;
+}
+
+/* =====================================================
+   MOBILE MOVEMENT TOUCH
+===================================================== */
+
+canvas.addEventListener("pointerdown", event => {
+
+    if (event.pointerType !== "touch") {
+        return;
+    }
+
+    /* LEFT HALF = MOVEMENT */
+
+    if (event.clientX < width / 2) {
+
+        createMovementJoystick(
+            event.clientX,
+            event.clientY,
+            event.pointerId
+        );
+
+        updateMovementJoystick(
+            event.clientX,
+            event.clientY
+        );
+
+        return;
+    }
+
+    /* RIGHT HALF = AIM */
+
+    createAimJoystick(
+        event.clientX,
+        event.clientY,
+        event.pointerId
+    );
+
+    updateAimJoystick(
+        event.clientX,
+        event.clientY
+    );
+});
+
+
+canvas.addEventListener("pointermove", event => {
+
+    if (event.pointerType !== "touch") {
+        return;
+    }
 
     if (
-        joystickKnob
+        movementActive &&
+        event.pointerId === movementPointer
     ) {
 
-        joystickKnob.style.transform =
-            "translate(0,0)";
+        updateMovementJoystick(
+            event.clientX,
+            event.clientY
+        );
+
+        return;
     }
-}
+
+    if (
+        aimActive &&
+        event.pointerId === aimPointer
+    ) {
+
+        updateAimJoystick(
+            event.clientX,
+            event.clientY
+        );
+    }
+});
 
 
-if (
-    joystick &&
-    joystickKnob
-) {
+canvas.addEventListener("pointerup", event => {
 
-    joystick.addEventListener(
-        "pointerdown",
-        event => {
+    if (
+        movementActive &&
+        event.pointerId === movementPointer
+    ) {
 
-            event.preventDefault();
+        destroyMovementJoystick();
+    }
 
-            joystickActive = true;
+    if (
+        aimActive &&
+        event.pointerId === aimPointer
+    ) {
 
-            joystickPointer =
-                event.pointerId;
-
-            joystick.setPointerCapture(
-                event.pointerId
-            );
-
-            updateMovementJoystick(
-                event.clientX,
-                event.clientY
-            );
-        }
-    );
+        destroyAimJoystick();
+    }
+});
 
 
-    joystick.addEventListener(
-        "pointermove",
-        event => {
+canvas.addEventListener("pointercancel", event => {
 
-            if (
-                !joystickActive ||
-                event.pointerId !==
-                joystickPointer
-            ) {
+    if (
+        movementActive &&
+        event.pointerId === movementPointer
+    ) {
 
-                return;
-            }
+        destroyMovementJoystick();
+    }
 
+    if (
+        aimActive &&
+        event.pointerId === aimPointer
+    ) {
 
-            updateMovementJoystick(
-                event.clientX,
-                event.clientY
-            );
-        }
-    );
-
-
-    joystick.addEventListener(
-        "pointerup",
-        resetMovementJoystick
-    );
-
-
-    joystick.addEventListener(
-        "pointercancel",
-        resetMovementJoystick
-    );
-}
-
+        destroyAimJoystick();
+    }
+});
 
 /* =====================================================
    DYNAMIC AIM JOYSTICK
@@ -1429,12 +1468,11 @@ function createAimJoystick(
         );
 
 
-    aimJoystick.className =
-        "aimJoystick";
+    aimJoystick.id =
+    "aimJoystick";
 
-    aimKnob.className =
-        "aimJoystickKnob";
-
+aimKnob.id =
+    "aimJoystickKnob";
 
     aimJoystick.style.left =
         `${x - 70}px`;
@@ -1575,242 +1613,83 @@ function destroyAimJoystick() {
 }
 
 
-/* =====================================================
-   RIGHT-SIDE TOUCH AIM
-===================================================== */
-
-canvas.addEventListener(
-    "pointerdown",
-    event => {
-
-        if (
-            event.pointerType !==
-            "touch"
-        ) {
-
-            return;
-        }
-
-
-        /* Left side belongs to movement */
-
-        if (
-            event.clientX <
-            width / 2
-        ) {
-
-            return;
-        }
-
-
-        createAimJoystick(
-            event.clientX,
-            event.clientY,
-            event.pointerId
-        );
-
-
-        updateAimJoystick(
-            event.clientX,
-            event.clientY
-        );
-    }
-);
-
-
-canvas.addEventListener(
-    "pointermove",
-    event => {
-
-        if (
-            !aimActive
-        ) {
-
-            return;
-        }
-
-
-        if (
-            event.pointerType ===
-            "touch" &&
-            event.pointerId !==
-            aimPointer
-        ) {
-
-            return;
-        }
-
-
-        updateAimJoystick(
-            event.clientX,
-            event.clientY
-        );
-    }
-);
-
-
-canvas.addEventListener(
-    "pointerup",
-    event => {
-
-        if (
-            event.pointerId ===
-            aimPointer
-        ) {
-
-            destroyAimJoystick();
-        }
-    }
-);
-
-
-canvas.addEventListener(
-    "pointercancel",
-    event => {
-
-        if (
-            event.pointerId ===
-            aimPointer
-        ) {
-
-            destroyAimJoystick();
-        }
-    }
-);
-
 
 /* =====================================================
-   DESKTOP MOUSE AIM
+   DESKTOP RIGHT-MOUSE AIM
 ===================================================== */
 
 let mouseAimActive = false;
 
+canvas.addEventListener("contextmenu", event => {
+    event.preventDefault();
+});
 
-canvas.addEventListener(
-    "pointerdown",
-    event => {
+canvas.addEventListener("pointerdown", event => {
 
-        if (
-            event.pointerType !==
-            "mouse"
-        ) {
-
-            return;
-        }
-
-
-        if (
-            event.button !== 0
-        ) {
-
-            return;
-        }
-
-
-        if (
-            event.clientX <
-            width / 2
-        ) {
-
-            return;
-        }
-
-
-        mouseAimActive = true;
-
-        player.aiming = true;
-
-
-        updateMouseAim(
-            event.clientX,
-            event.clientY
-        );
+    if (event.pointerType !== "mouse") {
+        return;
     }
-);
 
+    /* RIGHT MOUSE BUTTON */
 
-canvas.addEventListener(
-    "pointermove",
-    event => {
-
-        if (
-            !mouseAimActive
-        ) {
-
-            return;
-        }
-
-
-        updateMouseAim(
-            event.clientX,
-            event.clientY
-        );
+    if (event.button !== 2) {
+        return;
     }
-);
+
+    mouseAimActive = true;
+
+    createAimJoystick(
+        event.clientX,
+        event.clientY
+    );
+
+    updateMouseAim(
+        event.clientX,
+        event.clientY
+    );
+});
 
 
-window.addEventListener(
-    "pointerup",
-    event => {
+canvas.addEventListener("pointermove", event => {
 
-        if (
-            event.pointerType ===
-            "mouse"
-        ) {
-
-            mouseAimActive =
-                false;
-
-            player.aiming =
-                false;
-        }
+    if (
+        event.pointerType !== "mouse" ||
+        !mouseAimActive
+    ) {
+        return;
     }
-);
+
+    /* Move the visual joystick with mouse */
+
+    if (aimJoystick) {
+
+        aimJoystick.style.left =
+            `${event.clientX - 70}px`;
+
+        aimJoystick.style.top =
+            `${event.clientY - 70}px`;
+    }
+
+    updateMouseAim(
+        event.clientX,
+        event.clientY
+    );
+});
 
 
-function updateMouseAim(
-    clientX,
-    clientY
-) {
+window.addEventListener("pointerup", event => {
 
-    const visibleWidth =
-        width /
-        camera.zoom;
+    if (
+        event.pointerType === "mouse" &&
+        event.button === 2
+    ) {
 
-    const visibleHeight =
-        height /
-        camera.zoom;
+        mouseAimActive = false;
 
+        destroyAimJoystick();
+    }
+});
 
-    const cameraX =
-        player.x -
-        visibleWidth / 2;
-
-    const cameraY =
-        player.y -
-        visibleHeight / 2;
-
-
-    const worldX =
-        cameraX +
-        clientX /
-        camera.zoom;
-
-    const worldY =
-        cameraY +
-        clientY /
-        camera.zoom;
-
-
-    player.aimAngle =
-        Math.atan2(
-            worldY -
-            player.y,
-
-            worldX -
-            player.x
-        );
-}
 
 
 /* =====================================================
@@ -2013,6 +1892,109 @@ function movePlayer(
         player.y =
             nextY;
     }
+}
+
+/* =====================================================
+   CHAT UI
+===================================================== */
+
+const chatToggle =
+    document.getElementById("chatToggle");
+
+const gameChat =
+    document.getElementById("gameChat");
+
+const chatInput =
+    document.getElementById("chatInput");
+
+const chatSend =
+    document.getElementById("chatSend");
+
+
+if (chatToggle && gameChat) {
+
+    chatToggle.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            gameChat.classList.toggle("open");
+
+            if (
+                gameChat.classList.contains("open") &&
+                chatInput
+            ) {
+                setTimeout(() => {
+                    chatInput.focus();
+                }, 50);
+            }
+        }
+    );
+}
+/* =====================================================
+   SEND CHAT
+===================================================== */
+
+function sendChatMessage() {
+
+    if (!chatInput) {
+        return;
+    }
+
+    const message =
+        chatInput.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    if (
+        socket &&
+        socket.readyState === WebSocket.OPEN
+    ) {
+
+        socket.send(
+            JSON.stringify({
+                type: "chat",
+                message: message
+            })
+        );
+    }
+
+    chatInput.value = "";
+}
+
+
+if (chatSend) {
+
+    chatSend.addEventListener(
+        "pointerdown",
+        event => {
+
+            event.preventDefault();
+
+            sendChatMessage();
+        }
+    );
+}
+
+
+if (chatInput) {
+
+    chatInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                sendChatMessage();
+            }
+        }
+    );
 }
 
 
