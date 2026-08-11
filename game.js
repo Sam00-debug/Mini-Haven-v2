@@ -13,9 +13,20 @@ const TILE_SIZE = 32;
 
 const CHUNK_SIZE = 16;
 
+
 const CHUNK_WORLD_SIZE =
     TILE_SIZE * CHUNK_SIZE;
 
+const MAP_WIDTH = 128;
+const MAP_HEIGHT = 128;
+
+const WORLD_WIDTH = MAP_WIDTH * TILE_SIZE;
+const WORLD_HEIGHT = MAP_HEIGHT * TILE_SIZE;
+
+const MAP_CENTER_X = WORLD_WIDTH / 2;
+const MAP_CENTER_Y = WORLD_HEIGHT / 2;
+
+const MAP_RADIUS = WORLD_WIDTH * 0.45;
 
 /* =====================================================
    CANVAS
@@ -738,6 +749,21 @@ function chunkKey(
    GENERATE CHUNK
 ===================================================== */
 
+const startX = chunkX * CHUNK_SIZE;
+const startY = chunkY * CHUNK_SIZE;
+
+const endX = startX + CHUNK_SIZE - 1;
+const endY = startY + CHUNK_SIZE - 1;
+
+if (
+    endX < 0 ||
+    endY < 0 ||
+    startX >= MAP_WIDTH ||
+    startY >= MAP_HEIGHT
+) {
+    return null;
+}
+
 function generateChunk(
     chunkX,
     chunkY
@@ -786,7 +812,34 @@ function generateChunk(
                 chunkY *
                 CHUNK_SIZE +
                 y;
+const tileCenterX =
+    worldX * TILE_SIZE +
+    TILE_SIZE / 2;
 
+const tileCenterY =
+    worldY * TILE_SIZE +
+    TILE_SIZE / 2;
+
+const dx =
+    tileCenterX - MAP_CENTER_X;
+
+const dy =
+    tileCenterY - MAP_CENTER_Y;
+
+const distance =
+    Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+if (distance > MAP_RADIUS) {
+
+    tiles[
+        y * CHUNK_SIZE + x
+    ] = TILE.WATER;
+
+    continue;
+}
 
             /*
                 Deterministic random
@@ -928,9 +981,9 @@ const player = {
 
     y: 0,
 
-    radius: 14,
+    radius: 9,
 
-    speed: 230,
+    speed: 200,
 
     color: "#4da6ff"
 };
@@ -946,7 +999,7 @@ const camera = {
 
     minZoom: .55,
 
-    maxZoom: 2.5
+    maxZoom: 3
 };
 
 
@@ -1007,7 +1060,7 @@ let joystickY = 0;
 
 
 const JOYSTICK_RADIUS =
-    55;
+    35;
 
 
 function updateJoystick(
@@ -1482,7 +1535,34 @@ function update(time) {
         player.speed *
         delta;
 }
+const dx =
+    player.x - MAP_CENTER_X;
 
+const dy =
+    player.y - MAP_CENTER_Y;
+
+const distance =
+    Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+const maxDistance =
+    MAP_RADIUS - player.radius;
+
+if (distance > maxDistance) {
+
+    const scale =
+        maxDistance / distance;
+
+    player.x =
+        MAP_CENTER_X +
+        dx * scale;
+
+    player.y =
+        MAP_CENTER_Y +
+        dy * scale;
+        }
 
 /* =====================================================
    DRAW WORLD
@@ -1615,11 +1695,14 @@ function drawWorld() {
 
 
             const chunk =
-                generateChunk(
-                    chunkX,
-                    chunkY
-                );
+    generateChunk(
+        chunkX,
+        chunkY
+    );
 
+if (!chunk) {
+    continue;
+                }
 
             const type =
                 chunk.tiles[
