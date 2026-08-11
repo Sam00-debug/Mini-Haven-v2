@@ -28,8 +28,7 @@ const MAP_RADIUS_Y = 1160;
 ===================================================== */
 
 const MULTIPLAYER_URL =
-    "wss://mini-haven-cloudfare-server.umeshjamre321.workers.dev";
-
+    "wss://mini-haven-cloudfare-server.umeshjamre321.workers.dev/game?room=main";
 let socket = null;
 let multiplayerConnected = false;
 
@@ -1295,177 +1294,7 @@ function drawGridRoads() {
 }
 
 
-/* =====================================================
-   ARENAS / CLASSIC CONTAINER SHIELDS
-===================================================== */
 
-const arenas = [
-
-    {
-        x: 360,
-        y: 280,
-        w: 390,
-        h: 250
-    },
-
-    {
-        x: 1370,
-        y: 310,
-        w: 390,
-        h: 250
-    },
-
-    {
-        x: 2230,
-        y: 1480,
-        w: 390,
-        h: 250
-    },
-
-    {
-        x: 500,
-        y: 1990,
-        w: 390,
-        h: 250
-    }
-];
-
-
-function drawArena(
-    arena
-) {
-
-    /* outer shield */
-
-    roundRect(
-        arena.x,
-        arena.y,
-        arena.w,
-        arena.h,
-        25,
-        C.arenaDark
-    );
-
-    /* container walls */
-
-    roundRect(
-        arena.x + 12,
-        arena.y + 12,
-        arena.w - 24,
-        arena.h - 24,
-        18,
-        C.arena
-    );
-
-
-    /* floor */
-
-    roundRect(
-        arena.x + 30,
-        arena.y + 30,
-        arena.w - 60,
-        arena.h - 60,
-        12,
-        "#667177"
-    );
-
-
-    /* container lines */
-
-    ctx.strokeStyle =
-        C.arenaLine;
-
-    ctx.lineWidth = 4;
-
-    for (
-        let x =
-            arena.x + 45;
-        x <
-            arena.x +
-            arena.w -
-            40;
-        x += 45
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            x,
-            arena.y + 15
-        );
-
-        ctx.lineTo(
-            x,
-            arena.y +
-            arena.h -
-            15
-        );
-
-        ctx.stroke();
-    }
-
-
-    /* center marking */
-
-    ctx.strokeStyle =
-        "#d9dfdf";
-
-    ctx.lineWidth = 3;
-
-    ctx.strokeRect(
-        arena.x + 70,
-        arena.y + 55,
-        arena.w - 140,
-        arena.h - 110
-    );
-
-
-    /* corners */
-
-    circle(
-        arena.x + 35,
-        arena.y + 35,
-        7,
-        "#d9dfdf"
-    );
-
-    circle(
-        arena.x +
-            arena.w -
-            35,
-        arena.y + 35,
-        7,
-        "#d9dfdf"
-    );
-
-    circle(
-        arena.x + 35,
-        arena.y +
-            arena.h -
-            35,
-        7,
-        "#d9dfdf"
-    );
-
-    circle(
-        arena.x +
-            arena.w -
-            35,
-        arena.y +
-            arena.h -
-            35,
-        7,
-        "#d9dfdf"
-    );
-}
-
-
-function drawArenas() {
-
-    arenas.forEach(
-        drawArena
-    );
-}
 
 
 /* =====================================================
@@ -1702,47 +1531,6 @@ function isWalkable(
     }
 
 
-    /* arena walls */
-
-    for (
-        const arena of arenas
-    ) {
-
-        if (
-            pointInsideArena(
-                x,
-                y,
-                arena
-            )
-        ) {
-
-            const border = 18;
-
-            const inner =
-                x >
-                    arena.x +
-                    border &&
-                x <
-                    arena.x +
-                    arena.w -
-                    border &&
-                y >
-                    arena.y +
-                    border &&
-                y <
-                    arena.y +
-                    arena.h -
-                    border;
-
-            if (!inner) {
-
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
 
 
 function movePlayerWithCollision(
@@ -3315,7 +3103,23 @@ function handleMultiplayerMessage(
     if (!data)
         return;
 
+if (
+    data.type === "welcome"
+) {
 
+    if (data.id) {
+
+        multiplayerId =
+            data.id;
+
+        console.log(
+            "Server player ID:",
+            multiplayerId
+        );
+    }
+
+    return;
+}
     /* server may send an array */
 
     if (
