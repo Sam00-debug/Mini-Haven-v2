@@ -2115,3 +2115,228 @@ function gameLoop(time) {
 requestAnimationFrame(
     gameLoop
 );
+
+/* =====================================================
+   MINI HAVEN CHAT
+===================================================== */
+
+const chatToggle =
+    document.getElementById("chatToggle");
+
+const gameChat =
+    document.getElementById("gameChat");
+
+const chatInput =
+    document.getElementById("chatInput");
+
+const chatSend =
+    document.getElementById("chatSend");
+
+const chatMessages =
+    document.getElementById("chatMessages");
+
+
+/* =====================================================
+   OPEN / CLOSE
+===================================================== */
+
+chatToggle.addEventListener(
+    "click",
+    () => {
+
+        gameChat.classList.toggle(
+            "open"
+        );
+
+        if (
+            gameChat.classList.contains("open")
+        ) {
+
+            chatInput.focus();
+
+        }
+    }
+);
+
+
+/* =====================================================
+   ; = OPEN CHAT
+===================================================== */
+
+window.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+            Don't trigger while already
+            typing somewhere.
+        */
+
+        if (
+            document.activeElement ===
+            chatInput
+        ) {
+            return;
+        }
+
+
+        if (
+            event.key === ";"
+        ) {
+
+            event.preventDefault();
+
+            gameChat.classList.add(
+                "open"
+            );
+
+            chatInput.focus();
+
+        }
+    }
+);
+
+
+/* =====================================================
+   SEND MESSAGE
+===================================================== */
+
+function sendChatMessage() {
+
+    const text =
+        chatInput.value.trim();
+
+
+    if (!text) {
+        return;
+    }
+
+
+    addChatMessage(
+        "You",
+        text
+    );
+
+
+    chatInput.value = "";
+
+
+    /*
+        Keep keyboard open
+        after sending.
+    */
+
+    chatInput.focus();
+
+
+    /*
+        Multiplayer WebSocket
+        will be connected here later.
+    */
+
+}
+
+
+/* =====================================================
+   ENTER = SEND
+===================================================== */
+
+chatInput.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Enter"
+        ) {
+
+            event.preventDefault();
+
+            sendChatMessage();
+
+        }
+    }
+);
+
+
+/* =====================================================
+   SEND BUTTON
+===================================================== */
+
+chatSend.addEventListener(
+    "click",
+    sendChatMessage
+);
+
+
+/* =====================================================
+   ADD MESSAGE
+===================================================== */
+
+function addChatMessage(
+    name,
+    text
+) {
+
+    const message =
+        document.createElement("div");
+
+
+    message.className =
+        "chatMessage";
+
+
+    const username =
+        document.createElement("span");
+
+
+    username.className =
+        "chatName";
+
+
+    username.textContent =
+        name + ":";
+
+
+    username.style.color =
+        player.color;
+
+
+    const content =
+        document.createElement("span");
+
+
+    content.textContent =
+        text;
+
+
+    message.appendChild(
+        username
+    );
+
+    message.appendChild(
+        content
+    );
+
+
+    chatMessages.appendChild(
+        message
+    );
+
+
+    /*
+        Keep only recent messages
+        on the client.
+    */
+
+    while (
+        chatMessages.children.length > 100
+    ) {
+
+        chatMessages.firstChild.remove();
+
+    }
+
+
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
+        }
