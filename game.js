@@ -974,20 +974,44 @@ if (distance > MAP_RADIUS) {
 /* =====================================================
    PLAYER
 ===================================================== */
+function randomPlayerColor() {
+
+    const colors = [
+        "#4DA6FF",
+        "#FF5C5C",
+        "#FFD34D",
+        "#62D66F",
+        "#B66DFF",
+        "#FF7AC8",
+        "#5DE0D0",
+        "#FF914D"
+    ];
+
+    return colors[
+        Math.floor(
+            Math.random() * colors.length
+        )
+    ];
+}
 
 const player = {
 
-    x: 0,
+    x: MAP_CENTER_X,
+    y: MAP_CENTER_Y,
 
-    y: 0,
+    width: 32,
+    height: 46,
 
-    radius: 9,
+    speed: 230,
 
-    speed: 200,
+    color: randomPlayerColor(),
 
-    color: "#4da6ff"
+    direction: "down",
+
+    moving: false,
+
+    animationTime: 0
 };
-
 
 /* =====================================================
    CAMERA
@@ -1428,6 +1452,7 @@ function update(time) {
             .05
         );
 
+    player.animationTime += delta;
 
     lastTime =
         time;
@@ -1497,7 +1522,10 @@ function update(time) {
             joystickY;
     }
 
-
+player.moving =
+    Math.abs(moveX) > 0.05 ||
+    Math.abs(moveY) > 0.05;
+    
     /*
         Normalize
     */
@@ -1743,11 +1771,8 @@ if (!chunk) {
    DRAW PLAYER
 ===================================================== */
 
-function drawPlayer() {
 
-    /*
-        Player is always screen center.
-    */
+    function drawPlayer() {
 
     const screenX =
         width / 2;
@@ -1757,61 +1782,281 @@ function drawPlayer() {
 
 
     /*
+        Animation
+    */
+
+    let breathing = 0;
+
+    if (!player.moving) {
+
+        breathing =
+            Math.sin(
+                player.animationTime * 3
+            ) * 1.2;
+    }
+
+
+    /*
+        Character size
+    */
+
+    const scale =
+        camera.zoom;
+
+
+    const torsoWidth =
+        22 * scale;
+
+    const torsoHeight =
+        24 * scale;
+
+
+    const headRadius =
+        13 * scale;
+
+
+    /*
+        Character position
+    */
+
+    const cx =
+        screenX;
+
+    const cy =
+        screenY -
+        breathing;
+
+
+    /*
         Shadow
     */
 
+    ctx.save();
+
     ctx.beginPath();
 
-    ctx.arc(
-        screenX + 2,
-        screenY + 3,
-        player.radius *
-        camera.zoom,
+    ctx.ellipse(
+        cx,
+        screenY +
+        22 * scale,
 
+        15 * scale,
+        6 * scale,
+
+        0,
         0,
         Math.PI * 2
     );
 
-
     ctx.fillStyle =
-        "rgba(0,0,0,.35)";
+        "rgba(0,0,0,.30)";
 
     ctx.fill();
 
 
     /*
-        Player
+        LEGS
+    */
+
+    const legDistance =
+        10 * scale;
+
+    let leftRotation = 0;
+    let rightRotation = 0;
+
+
+    if (player.moving) {
+
+        leftRotation =
+            Math.sin(
+                player.animationTime * 10
+            ) * .45;
+
+        rightRotation =
+            Math.sin(
+                player.animationTime * 10 +
+                Math.PI
+            ) * .45;
+    }
+
+
+    /*
+        Left circular leg
+    */
+
+    ctx.save();
+
+    ctx.translate(
+        cx - legDistance,
+        cy + 18 * scale
+    );
+
+    ctx.rotate(leftRotation);
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        7 * scale,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#33383D";
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+        "#17191C";
+
+    ctx.lineWidth =
+        2 * scale;
+
+    ctx.stroke();
+
+    ctx.restore();
+
+
+    /*
+        Right circular leg
+    */
+
+    ctx.save();
+
+    ctx.translate(
+        cx + legDistance,
+        cy + 18 * scale
+    );
+
+    ctx.rotate(rightRotation);
+
+    ctx.beginPath();
+
+    ctx.arc(
+        0,
+        0,
+        7 * scale,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle =
+        "#33383D";
+
+    ctx.fill();
+
+    ctx.strokeStyle =
+        "#17191C";
+
+    ctx.lineWidth =
+        2 * scale;
+
+    ctx.stroke();
+
+    ctx.restore();
+
+
+    /*
+        TORSO
+    */
+
+    ctx.fillStyle =
+        player.color;
+
+    ctx.fillRect(
+        cx - torsoWidth / 2,
+        cy - 2 * scale,
+        torsoWidth,
+        torsoHeight
+    );
+
+
+    /*
+        Torso outline
+    */
+
+    ctx.strokeStyle =
+        "rgba(0,0,0,.45)";
+
+    ctx.lineWidth =
+        2 * scale;
+
+    ctx.strokeRect(
+        cx - torsoWidth / 2,
+        cy - 2 * scale,
+        torsoWidth,
+        torsoHeight
+    );
+
+
+    /*
+        TOP-HALF SPHERE HEAD
     */
 
     ctx.beginPath();
 
     ctx.arc(
-        screenX,
-        screenY,
-        player.radius *
-        camera.zoom,
-
-        0,
-        Math.PI * 2
+        cx,
+        cy - 13 * scale,
+        headRadius,
+        Math.PI,
+        0
     );
 
+    ctx.lineTo(
+        cx + headRadius,
+        cy - 4 * scale
+    );
+
+    ctx.lineTo(
+        cx - headRadius,
+        cy - 4 * scale
+    );
+
+    ctx.closePath();
 
     ctx.fillStyle =
         player.color;
 
     ctx.fill();
 
-
-    /*
-        Outline
-    */
-
-    ctx.lineWidth = 3;
-
     ctx.strokeStyle =
-        "white";
+        "rgba(0,0,0,.45)";
+
+    ctx.lineWidth =
+        2 * scale;
 
     ctx.stroke();
+
+
+    /*
+        Simple face
+    */
+
+    ctx.fillStyle =
+        "#111";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx - 5 * scale,
+        cy - 10 * scale,
+        1.5 * scale,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.arc(
+        cx + 5 * scale,
+        cy - 10 * scale,
+        1.5 * scale,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
 
 
     /*
@@ -1819,7 +2064,7 @@ function drawPlayer() {
     */
 
     ctx.font =
-        "bold 13px Arial";
+        `bold ${13 * scale}px Arial`;
 
     ctx.textAlign =
         "center";
@@ -1829,14 +2074,13 @@ function drawPlayer() {
 
     ctx.fillText(
         "You",
-
-        screenX,
-
-        screenY -
-        player.radius *
-        camera.zoom -
-        10
+        cx,
+        cy -
+        29 * scale
     );
+
+
+    ctx.restore();
 }
 
 
