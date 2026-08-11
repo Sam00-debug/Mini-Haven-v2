@@ -8,7 +8,8 @@
         content="width=device-width,
                  initial-scale=1,
                  maximum-scale=1,
-                 user-scalable=no"
+                 user-scalable=no,
+                 viewport-fit=cover"
     >
 
     <title>Mini Haven</title>
@@ -18,53 +19,136 @@
 
 <body>
 
-<canvas id="game"></canvas>
+    <!-- =====================================================
+         GAME CANVAS
+    ====================================================== -->
 
-<!-- Player information -->
-<div id="playerInfo">Mini Haven</div>
+    <canvas id="game"></canvas>
 
-<!-- Mobile joystick -->
-<div id="joystick">
-    <div id="joystickKnob"></div>
-</div>
-
-<!-- Zoom -->
-<div id="zoomControls">
-    <button id="zoomIn">+</button>
-    <button id="zoomOut">−</button>
-</div>
 
     <!-- =====================================================
-     MINI HAVEN CHAT
-===================================================== -->
+         PLAYER INFO
+    ====================================================== -->
 
-<button id="chatToggle" aria-label="Open chat">
-    💬
-</button>
+    <div id="playerInfo">
+        Mini Haven
+    </div>
 
-<div id="gameChat">
 
-    <div id="chatMessages"></div>
+    <!-- =====================================================
+         MOVEMENT JOYSTICK
+         LEFT SIDE
+    ====================================================== -->
 
-    <div id="chatInputBox">
+    <div id="joystick">
+        <div id="joystickKnob"></div>
+    </div>
 
-        <input
-            id="chatInput"
-            type="text"
-            maxlength="400"
-            autocomplete="off"
-            placeholder="Press ; to chat..."
+
+    <!-- =====================================================
+         AIM JOYSTICK
+         RIGHT SIDE
+
+         This is normally invisible.
+         game.js creates/positions it where the
+         player touches/holds on the right side.
+    ====================================================== -->
+
+    <div
+        id="aimJoystick"
+        aria-hidden="true"
+    >
+        <div id="aimJoystickKnob"></div>
+    </div>
+
+
+    <!-- =====================================================
+         ZOOM CONTROLS
+    ====================================================== -->
+
+    <div id="zoomControls">
+
+        <button
+            id="zoomIn"
+            type="button"
+            aria-label="Zoom in"
         >
+            +
+        </button>
 
-        <button id="chatSend">
-            ➤
+        <button
+            id="zoomOut"
+            type="button"
+            aria-label="Zoom out"
+        >
+            −
         </button>
 
     </div>
 
-</div>
 
-<script src="game.js"></script>
+    <!-- =====================================================
+         MINI HAVEN CHAT BUTTON
+    ====================================================== -->
+
+    <button
+        id="chatToggle"
+        type="button"
+        aria-label="Open chat"
+    >
+        💬
+    </button>
+
+
+    <!-- =====================================================
+         CHAT PANEL
+    ====================================================== -->
+
+    <div
+        id="gameChat"
+        aria-label="Mini Haven chat"
+    >
+
+        <!-- Scrollable message area -->
+
+        <div
+            id="chatMessages"
+            role="log"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- Chat input -->
+
+        <div id="chatInputBox">
+
+            <input
+                id="chatInput"
+                type="text"
+                maxlength="400"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Press ; to chat..."
+            >
+
+            <button
+                id="chatSend"
+                type="button"
+                aria-label="Send message"
+            >
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         GAME SCRIPT
+    ====================================================== -->
+
+    <script src="game.js"></script>
 
 </body>
-  </html>
+</html>
