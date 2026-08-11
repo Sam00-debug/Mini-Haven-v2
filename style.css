@@ -1,0 +1,821 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #111;
+
+    font-family: Arial, sans-serif;
+
+    touch-action: none;
+}
+
+body {
+    position: fixed;
+    inset: 0;
+}
+
+
+/* =====================================================
+   GAME CANVAS
+===================================================== */
+
+#game {
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    touch-action: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+/* =====================================================
+   PLAYER INFO
+===================================================== */
+
+#playerInfo {
+
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+
+    padding: 8px 13px;
+
+    color: white;
+
+    background:
+        rgba(0, 0, 0, .5);
+
+    border:
+        1px solid rgba(255,255,255,.08);
+
+    border-radius: 10px;
+
+    z-index: 20;
+
+    pointer-events: none;
+
+    font-size: 13px;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+
+/* =====================================================
+   LEFT MOVEMENT JOYSTICK
+===================================================== */
+
+#joystick {
+
+    position: fixed;
+
+    left: 25px;
+    bottom: 25px;
+
+    width: 140px;
+    height: 140px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.10);
+
+    border:
+        2px solid rgba(255,255,255,.25);
+
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+
+    z-index: 20;
+
+    touch-action: none;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+/* joystick center */
+
+#joystick::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.20);
+}
+
+
+/* movement knob */
+
+#joystickKnob {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 60px;
+    height: 60px;
+
+    margin-left: -30px;
+    margin-top: -30px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.72);
+
+    border:
+        2px solid rgba(255,255,255,.9);
+
+    pointer-events: none;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.35);
+
+    will-change: transform;
+}
+
+
+/* =====================================================
+   RIGHT AIM JOYSTICK
+   CREATED DYNAMICALLY BY game.js
+===================================================== */
+
+#aimJoystick {
+
+    position: fixed;
+
+    width: 140px;
+    height: 140px;
+
+    margin-left: -70px;
+    margin-top: -70px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.07);
+
+    border:
+        2px solid rgba(255,255,255,.20);
+
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+
+    z-index: 21;
+
+    pointer-events: none;
+
+    touch-action: none;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    animation:
+        aimJoystickAppear .12s ease-out;
+}
+
+
+/* center marker */
+
+#aimJoystick::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 7px;
+    height: 7px;
+
+    margin-left: -3.5px;
+    margin-top: -3.5px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.25);
+}
+
+
+/* aim knob */
+
+#aimJoystickKnob {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 56px;
+    height: 56px;
+
+    margin-left: -28px;
+    margin-top: -28px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.55);
+
+    border:
+        2px solid rgba(255,255,255,.8);
+
+    box-shadow:
+        0 5px 18px rgba(0,0,0,.3);
+
+    pointer-events: none;
+
+    will-change: transform;
+}
+
+
+@keyframes aimJoystickAppear {
+
+    from {
+        opacity: 0;
+        transform: scale(.75);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* =====================================================
+   AIM CROSSHAIR
+===================================================== */
+
+#aimJoystick.crosshair {
+
+    background:
+        rgba(255,80,80,.08);
+
+    border-color:
+        rgba(255,120,120,.35);
+}
+
+
+/* =====================================================
+   ZOOM CONTROLS
+===================================================== */
+
+#zoomControls {
+
+    position: fixed;
+
+    right: 20px;
+    bottom: 25px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    z-index: 20;
+}
+
+
+#zoomControls button {
+
+    width: 50px;
+    height: 50px;
+
+    border: 0;
+
+    border-radius: 14px;
+
+    background:
+        rgba(0,0,0,.55);
+
+    color: white;
+
+    font-size: 28px;
+
+    font-weight: bold;
+
+    touch-action: manipulation;
+
+    cursor: pointer;
+
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+}
+
+
+#zoomControls button:active {
+
+    transform: scale(.92);
+
+    background:
+        rgba(255,255,255,.25);
+}
+
+
+/* =====================================================
+   CHAT BUTTON
+===================================================== */
+
+#chatToggle {
+
+    position: fixed;
+
+    left: 15px;
+    top: 15px;
+
+    width: 46px;
+    height: 46px;
+
+    border:
+        1px solid rgba(255,255,255,.15);
+
+    border-radius: 14px;
+
+    background:
+        rgba(15,20,26,.60);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    color: white;
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    z-index: 50;
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.25);
+
+    touch-action: manipulation;
+}
+
+
+#chatToggle:active {
+
+    transform: scale(.94);
+}
+
+
+/* =====================================================
+   CHAT PANEL
+===================================================== */
+
+#gameChat {
+
+    position: fixed;
+
+    left: 15px;
+    bottom: 70px;
+
+    width:
+        min(
+            360px,
+            calc(100vw - 30px)
+        );
+
+    height: 260px;
+
+    display: none;
+
+    flex-direction: column;
+
+    background:
+        rgba(10,15,20,.48);
+
+    border:
+        1px solid rgba(255,255,255,.12);
+
+    border-radius: 16px;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,.40);
+
+    overflow: hidden;
+
+    z-index: 49;
+}
+
+
+#gameChat.open {
+
+    display: flex;
+}
+
+
+/* =====================================================
+   SCROLLABLE CHAT MESSAGES
+===================================================== */
+
+#chatMessages {
+
+    flex: 1;
+
+    min-height: 0;
+
+    height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding:
+        10px 10px 8px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: flex-start;
+
+    gap: 5px;
+
+    overscroll-behavior: contain;
+
+    -webkit-overflow-scrolling: touch;
+
+    touch-action: pan-y;
+
+    scrollbar-width: thin;
+}
+
+
+/* Chrome / Android scrollbar */
+
+#chatMessages::-webkit-scrollbar {
+
+    width: 5px;
+}
+
+
+#chatMessages::-webkit-scrollbar-track {
+
+    background:
+        transparent;
+}
+
+
+#chatMessages::-webkit-scrollbar-thumb {
+
+    background:
+        rgba(255,255,255,.20);
+
+    border-radius: 10px;
+}
+
+
+/* =====================================================
+   CHAT MESSAGE
+===================================================== */
+
+.chatMessage {
+
+    flex-shrink: 0;
+
+    width: fit-content;
+
+    max-width: 95%;
+
+    padding:
+        5px 9px;
+
+    border-radius: 9px;
+
+    background:
+        rgba(15,20,26,.58);
+
+    color: white;
+
+    font-size: 13px;
+
+    line-height: 1.35;
+
+    word-break: break-word;
+
+    overflow-wrap: anywhere;
+}
+
+
+.chatName {
+
+    font-weight: 700;
+
+    margin-right: 5px;
+}
+
+
+/* =====================================================
+   CHAT INPUT
+===================================================== */
+
+#chatInputBox {
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    gap: 6px;
+
+    padding: 8px;
+
+    background:
+        rgba(8,12,17,.42);
+
+    border-top:
+        1px solid rgba(255,255,255,.08);
+}
+
+
+#chatInput {
+
+    flex: 1;
+
+    min-width: 0;
+
+    height: 38px;
+
+    padding:
+        0 11px;
+
+    border:
+        1px solid rgba(255,255,255,.12);
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background:
+        rgba(20,27,35,.70);
+
+    color: white;
+
+    font-size: 13px;
+
+    touch-action: manipulation;
+}
+
+
+#chatInput::placeholder {
+
+    color:
+        rgba(255,255,255,.45);
+}
+
+
+#chatInput:focus {
+
+    border-color:
+        rgba(100,160,255,.6);
+}
+
+
+#chatSend {
+
+    flex-shrink: 0;
+
+    width: 40px;
+    height: 38px;
+
+    border: 0;
+
+    border-radius: 10px;
+
+    background:
+        rgba(70,130,230,.75);
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+
+#chatSend:active {
+
+    transform: scale(.94);
+}
+
+
+#chatSend:disabled {
+
+    opacity: .5;
+
+    cursor: default;
+}
+
+
+/* =====================================================
+   DESKTOP
+===================================================== */
+
+@media (
+    min-width: 700px
+) and (
+    pointer: fine
+) {
+
+    #joystick {
+
+        display: none;
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (
+    max-width: 699px
+) {
+
+    #joystick {
+
+        left: 25px;
+        bottom: 25px;
+    }
+
+}
+
+
+/* =====================================================
+   LANDSCAPE MOBILE
+===================================================== */
+
+@media (
+    orientation: landscape
+) and (
+    max-width: 900px
+) {
+
+    #joystick {
+
+        left: 25px;
+        bottom: 18px;
+    }
+
+
+    #zoomControls {
+
+        right: 18px;
+        bottom: 18px;
+    }
+
+}
+
+
+/* =====================================================
+   SMALL PHONES
+===================================================== */
+
+@media (
+    max-width: 500px
+) {
+
+    #gameChat {
+
+        left: 10px;
+        bottom: 64px;
+
+        width:
+            calc(100vw - 20px);
+
+        height: 220px;
+
+        border-radius: 14px;
+    }
+
+
+    #chatToggle {
+
+        left: 10px;
+        top: 10px;
+    }
+
+
+    #joystick {
+
+        left: 20px;
+        bottom: 20px;
+
+        width: 130px;
+        height: 130px;
+    }
+
+
+    #joystickKnob {
+
+        width: 56px;
+        height: 56px;
+
+        margin-left: -28px;
+        margin-top: -28px;
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL SCREENS
+===================================================== */
+
+@media (
+    max-height: 450px
+) {
+
+    #gameChat {
+
+        height: 190px;
+    }
+
+
+    #joystick {
+
+        width: 115px;
+        height: 115px;
+    }
+
+
+    #joystickKnob {
+
+        width: 50px;
+        height: 50px;
+
+        margin-left: -25px;
+        margin-top: -25px;
+    }
+
+}
+
+
+/* =====================================================
+   PREVENT TEXT SELECTION / LONG PRESS
+===================================================== */
+
+button,
+canvas,
+#joystick,
+#aimJoystick {
+
+    -webkit-tap-highlight-color:
+        transparent;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+/* =====================================================
+   CHAT INPUT MUST REMAIN SELECTABLE
+===================================================== */
+
+#chatInput,
+#chatMessages {
+
+    user-select: text;
+    -webkit-user-select: text;
+}
