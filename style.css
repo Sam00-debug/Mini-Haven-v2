@@ -87,28 +87,32 @@ body {
 ===================================================== */
 
 #joystick,
-#joystickKnob,
-#aimJoystick,
-#aimJoystickKnob {
+#aimJoystick {
     position: fixed;
 
-    pointer-events: none;
+    width: 140px;
+    height: 140px;
+
+    padding: 0;
+    margin: 0;
 
     background: transparent;
     border: none;
-    box-shadow: none;
-}
 
-#joystick,
-#aimJoystick {
-    width: 100px;
-    height: 100px;
+    pointer-events: none;
 }
 
 #joystickKnob,
 #aimJoystickKnob {
-    width: 35px;
-    height: 35px;
+    position: absolute;
+
+    width: 55px;
+    height: 55px;
+
+    background: transparent;
+    border: none;
+
+    pointer-events: none;
 }
 
 
