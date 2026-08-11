@@ -1934,10 +1934,20 @@ if (chatToggle && gameChat) {
     );
 }
 /* =====================================================
-   SEND CHAT
+   RENDER CHAT
 ===================================================== */
 
-function sendChatMessage() {
+const RENDER_CHAT_URL =
+    "https://my-roblox-private-chat.onrender.com";
+
+let lastChatTime = 0;
+
+
+/* =====================================================
+   SEND CHAT TO RENDER
+===================================================== */
+
+async function sendChatMessage() {
 
     if (!chatInput) {
         return;
@@ -1950,53 +1960,57 @@ function sendChatMessage() {
         return;
     }
 
-    if (
-        socket &&
-        socket.readyState === WebSocket.OPEN
-    ) {
+    try {
 
-        socket.send(
-            JSON.stringify({
-                type: "chat",
-                message: message
-            })
+        const response =
+            await fetch(
+                `${RENDER_CHAT_URL}/send`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        user:
+                            multiplayerId,
+
+                        displayName:
+                            multiplayerName,
+
+                        msg:
+                            message,
+
+                        source:
+                            "website",
+
+                        private:
+                            false
+                    })
+                }
+            );
+
+
+        if (!response.ok) {
+            throw new Error(
+                "Chat send failed"
+            );
+        }
+
+
+        chatInput.value = "";
+
+    } catch (error) {
+
+        console.error(
+            "Chat error:",
+            error
         );
     }
-
-    chatInput.value = "";
 }
-
-
-if (chatSend) {
-
-    chatSend.addEventListener(
-        "pointerdown",
-        event => {
-
-            event.preventDefault();
-
-            sendChatMessage();
-        }
-    );
-}
-
-
-if (chatInput) {
-
-    chatInput.addEventListener(
-        "keydown",
-        event => {
-
-            if (event.key === "Enter") {
-
-                event.preventDefault();
-
-                sendChatMessage();
-            }
-        }
-    );
-}
-
 
 /* =====================================================
    MULTIPLAYER
