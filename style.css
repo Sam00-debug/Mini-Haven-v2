@@ -82,7 +82,34 @@ body {
 
 
     
+/* =====================================================
+   JOYSTICKS — INVISIBLE
+===================================================== */
 
+#joystick,
+#joystickKnob,
+#aimJoystick,
+#aimJoystickKnob {
+    position: fixed;
+
+    pointer-events: none;
+
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+#joystick,
+#aimJoystick {
+    width: 100px;
+    height: 100px;
+}
+
+#joystickKnob,
+#aimJoystickKnob {
+    width: 35px;
+    height: 35px;
+}
 
 
 
@@ -198,7 +225,7 @@ body {
     position: fixed;
 
     left: 15px;
-    bottom: 70px;
+    top: 15px;
 
     width:
         min(
