@@ -2117,8 +2117,12 @@ requestAnimationFrame(
 );
 
 /* =====================================================
-   MINI HAVEN CHAT
+   MINI HAVEN CHAT — RENDER SERVER
 ===================================================== */
+
+const SERVER_URL =
+    "https://my-roblox-private-chat.onrender.com";
+
 
 const chatToggle =
     document.getElementById("chatToggle");
@@ -2136,8 +2140,72 @@ const chatMessages =
     document.getElementById("chatMessages");
 
 
+let chatUsername = "";
+
+let lastMessageTime = 0;
+
+let loadingChat = false;
+
+const displayedMessages =
+    new Set();
+
+
 /* =====================================================
-   OPEN / CLOSE
+   USERNAME
+===================================================== */
+
+let savedName = null;
+
+try {
+
+    savedName =
+        localStorage.getItem(
+            "minihaven_username"
+        );
+
+} catch (error) {
+
+    console.warn(
+        "localStorage unavailable",
+        error
+    );
+
+}
+
+
+if (savedName) {
+
+    chatUsername =
+        savedName;
+
+} else {
+
+    chatUsername =
+        "Player" +
+        Math.floor(
+            Math.random() * 9999
+        );
+
+}
+
+
+/* =====================================================
+   SAVE USERNAME
+===================================================== */
+
+try {
+
+    localStorage.setItem(
+        "minihaven_username",
+        chatUsername
+    );
+
+} catch (error) {}
+
+
+
+/* =====================================================
+   OPEN / CLOSE CHAT
 ===================================================== */
 
 chatToggle.addEventListener(
@@ -2148,13 +2216,17 @@ chatToggle.addEventListener(
             "open"
         );
 
+
         if (
-            gameChat.classList.contains("open")
+            gameChat.classList.contains(
+                "open"
+            )
         ) {
 
             chatInput.focus();
 
         }
+
     }
 );
 
@@ -2168,15 +2240,17 @@ window.addEventListener(
     event => {
 
         /*
-            Don't trigger while already
-            typing somewhere.
+            Don't activate ; while
+            already typing.
         */
 
         if (
             document.activeElement ===
             chatInput
         ) {
+
             return;
+
         }
 
 
@@ -2186,53 +2260,408 @@ window.addEventListener(
 
             event.preventDefault();
 
+
             gameChat.classList.add(
                 "open"
             );
 
+
             chatInput.focus();
 
         }
+
     }
 );
 
 
 /* =====================================================
-   SEND MESSAGE
+   MESSAGE ID
 ===================================================== */
 
-function sendChatMessage() {
+function messageId(message) {
 
-    const text =
-        chatInput.value.trim();
+    return [
+
+        String(
+            message.time || ""
+        ),
+
+        String(
+            message.user || ""
+        ),
+
+        String(
+            message.msg || ""
+        )
+
+    ].join("|||");
+
+}
 
 
-    if (!text) {
+/* =====================================================
+   LOAD MESSAGES FROM RENDER
+===================================================== */
+
+async function loadChatMessages() {
+
+    if (loadingChat) {
+
         return;
+
     }
 
 
-    addChatMessage(
-        "You",
+    loadingChat = true;
+
+
+    try {
+
+        const response =
+            await fetch(
+                SERVER_URL +
+                "/messages?since=" +
+                encodeURIComponent(
+                    lastMessageTime
+                ),
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !Array.isArray(data)
+        ) {
+
+            throw new Error(
+                "Invalid response"
+            );
+
+        }
+
+
+        data.sort(
+            (a, b) =>
+                Number(a.time || 0) -
+                Number(b.time || 0)
+        );
+
+
+        data.forEach(
+            addChatMessage
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Chat loading error:",
+            error
+        );
+
+    } finally {
+
+        loadingChat = false;
+
+    }
+
+}
+
+
+/* =====================================================
+   ADD MESSAGE
+===================================================== */
+
+function addChatMessage(message) {
+
+    const id =
+        messageId(message);
+
+
+    if (
+        displayedMessages.has(id)
+    ) {
+
+        return;
+
+    }
+
+
+    displayedMessages.add(id);
+
+
+    const messageTime =
+        Number(
+            message.time || 0
+        );
+
+
+    if (
+        messageTime >
+        lastMessageTime
+    ) {
+
+        lastMessageTime =
+            messageTime;
+
+    }
+
+
+    const element =
+        document.createElement(
+            "div"
+        );
+
+
+    element.className =
+        "chatMessage";
+
+
+    const name =
+        document.createElement(
+            "span"
+        );
+
+
+    name.className =
+        "chatName";
+
+
+    const displayName =
+        message.displayName ||
+        message.user ||
+        "Unknown";
+
+
+    name.textContent =
+        displayName + ":";
+
+
+    /*
+        Same player color
+        as their character.
+    */
+
+    name.style.color =
+        getChatNameColor(
+            message.user ||
+            displayName
+        );
+
+
+    const text =
+        document.createElement(
+            "span"
+        );
+
+
+    text.textContent =
+        message.msg || "";
+
+
+    element.appendChild(
+        name
+    );
+
+
+    element.appendChild(
         text
     );
 
 
-    chatInput.value = "";
+    chatMessages.appendChild(
+        element
+    );
 
 
     /*
-        Keep keyboard open
-        after sending.
+        Keep chat lightweight.
     */
 
-    chatInput.focus();
+    while (
+        chatMessages.children.length >
+        50
+    ) {
+
+        chatMessages.firstChild.remove();
+
+    }
 
 
-    /*
-        Multiplayer WebSocket
-        will be connected here later.
-    */
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
+
+}
+
+
+/* =====================================================
+   NAME COLOR
+===================================================== */
+
+function getChatNameColor(name) {
+
+    const colors = [
+
+        "#ff6b8a",
+        "#ff9f43",
+        "#ffd166",
+        "#5ee1a2",
+        "#55c7ff",
+        "#7c8cff",
+        "#b084ff",
+        "#ff72d2",
+        "#58d5c9",
+        "#e989ff"
+
+    ];
+
+
+    let hash = 0;
+
+
+    for (
+        let i = 0;
+        i < name.length;
+        i++
+    ) {
+
+        hash =
+            name.charCodeAt(i) +
+            ((hash << 5) - hash);
+
+    }
+
+
+    return colors[
+        Math.abs(hash) %
+        colors.length
+    ];
+
+}
+
+
+/* =====================================================
+   SEND MESSAGE TO RENDER
+===================================================== */
+
+async function sendChatMessage() {
+
+    const msg =
+        chatInput.value.trim();
+
+
+    if (!msg) {
+
+        return;
+
+    }
+
+
+    try {
+
+        chatSend.disabled =
+            true;
+
+
+        const response =
+            await fetch(
+                SERVER_URL + "/send",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        user:
+                            chatUsername,
+
+                        displayName:
+                            chatUsername,
+
+                        msg:
+                            msg,
+
+                        source:
+                            "minihaven",
+
+                        private:
+                            false
+
+                    })
+
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        /*
+            Show the server's
+            returned message immediately.
+        */
+
+        if (
+            result &&
+            result.message
+        ) {
+
+            addChatMessage(
+                result.message
+            );
+
+        }
+
+
+        chatInput.value = "";
+
+        chatInput.focus();
+
+
+    } catch (error) {
+
+        console.error(
+            "Chat send error:",
+            error
+        );
+
+    } finally {
+
+        chatSend.disabled =
+            false;
+
+    }
 
 }
 
@@ -2254,6 +2683,7 @@ chatInput.addEventListener(
             sendChatMessage();
 
         }
+
     }
 );
 
@@ -2269,74 +2699,13 @@ chatSend.addEventListener(
 
 
 /* =====================================================
-   ADD MESSAGE
+   START RENDER CHAT
 ===================================================== */
 
-function addChatMessage(
-    name,
-    text
-) {
-
-    const message =
-        document.createElement("div");
+loadChatMessages();
 
 
-    message.className =
-        "chatMessage";
-
-
-    const username =
-        document.createElement("span");
-
-
-    username.className =
-        "chatName";
-
-
-    username.textContent =
-        name + ":";
-
-
-    username.style.color =
-        player.color;
-
-
-    const content =
-        document.createElement("span");
-
-
-    content.textContent =
-        text;
-
-
-    message.appendChild(
-        username
-    );
-
-    message.appendChild(
-        content
-    );
-
-
-    chatMessages.appendChild(
-        message
-    );
-
-
-    /*
-        Keep only recent messages
-        on the client.
-    */
-
-    while (
-        chatMessages.children.length > 100
-    ) {
-
-        chatMessages.firstChild.remove();
-
-    }
-
-
-    chatMessages.scrollTop =
-        chatMessages.scrollHeight;
-        }
+setInterval(
+    loadChatMessages,
+    500
+);
