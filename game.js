@@ -1062,6 +1062,21 @@ function pointOnRoad(x, y) {
     return false;
 }
 
+function pointInside(x, y, island) {
+
+    return (
+        x >= island.x &&
+        x <= island.x + island.w &&
+        y >= island.y &&
+        y <= island.y + island.h
+    );
+}
+
+/* =====================================================
+   WALKABLE AREA
+===================================================== */
+
+function isWalkable(x, y) {
 
     /* Islands are walkable */
 
