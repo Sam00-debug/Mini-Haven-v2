@@ -2299,6 +2299,11 @@ function addChatMessage(message) {
     }
 
 }
+showPlayerChatBubble(
+    message.user,
+    message.displayName || message.user,
+    message.msg
+);
 
 
 /* =====================================================
