@@ -1906,8 +1906,33 @@ function movePlayer(
     }
 }
 
+
+         /* =====================================================
+   CHAT SYSTEM
+===================================================== */
+
+const CHAT_SERVER =
+    "https://my-roblox-private-chat.onrender.com";
+
+
 /* =====================================================
-   CHAT UI
+   CHAT VARIABLES
+===================================================== */
+
+let chatUsername = "";
+
+let chatLastMessageTime = 0;
+
+let chatLoading = false;
+
+let chatStarted = false;
+
+const chatDisplayedMessages =
+    new Set();
+
+
+/* =====================================================
+   CHAT ELEMENTS
 ===================================================== */
 
 const chatToggle =
@@ -1916,6 +1941,9 @@ const chatToggle =
 const gameChat =
     document.getElementById("gameChat");
 
+const chatMessages =
+    document.getElementById("chatMessages");
+
 const chatInput =
     document.getElementById("chatInput");
 
@@ -1923,106 +1951,695 @@ const chatSend =
     document.getElementById("chatSend");
 
 
-if (chatToggle && gameChat) {
+/* =====================================================
+   GET USERNAME
+===================================================== */
+
+/*
+   Change this if your game already has
+   a player-name variable.
+
+   Examples:
+
+   chatUsername = player.name;
+
+   or
+
+   chatUsername = playerName;
+*/
+
+function getChatUsername() {
+
+    /*
+       If your game already has a global
+       playerName variable, use it.
+    */
+
+    if (
+        typeof playerName !== "undefined" &&
+        playerName
+    ) {
+
+        return String(playerName);
+
+    }
+
+
+    /*
+       If your game has a username variable.
+    */
+
+    if (
+        typeof username !== "undefined" &&
+        username
+    ) {
+
+        return String(username);
+
+    }
+
+
+    /*
+       Otherwise use saved name.
+    */
+
+    try {
+
+        const saved =
+            localStorage.getItem(
+                "mychat_username"
+            );
+
+        if (saved) {
+
+            return saved;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Could not read saved username:",
+            error
+        );
+
+    }
+
+
+    /*
+       Fallback.
+    */
+
+    return "Player";
+
+}
+
+
+/* =====================================================
+   NAME COLORS
+===================================================== */
+
+const chatNameColors = [
+
+    "#ff6b8a",
+    "#ff9f43",
+    "#ffd166",
+    "#5ee1a2",
+    "#55c7ff",
+    "#7c8cff",
+    "#b084ff",
+    "#ff72d2",
+    "#58d5c9",
+    "#e989ff"
+
+];
+
+
+function getChatNameColor(name) {
+
+    let hash = 0;
+
+
+    for (
+        let i = 0;
+        i < name.length;
+        i++
+    ) {
+
+        hash =
+            name.charCodeAt(i) +
+            ((hash << 5) - hash);
+
+    }
+
+
+    return chatNameColors[
+        Math.abs(hash) %
+        chatNameColors.length
+    ];
+
+}
+
+
+/* =====================================================
+   MESSAGE FINGERPRINT
+===================================================== */
+
+function getChatMessageId(message) {
+
+    return [
+
+        String(message.time || ""),
+
+        String(message.user || ""),
+
+        String(message.displayName || ""),
+
+        String(message.msg || ""),
+
+        String(message.source || ""),
+
+        String(message.jobId || "")
+
+    ].join("|||");
+
+}
+
+
+/* =====================================================
+   OPEN / CLOSE CHAT
+===================================================== */
+
+if (chatToggle) {
 
     chatToggle.addEventListener(
-        "pointerdown",
-        event => {
+        "click",
+        function(event) {
 
-            event.preventDefault();
             event.stopPropagation();
 
-            gameChat.classList.toggle("open");
+            gameChat.classList.toggle(
+                "open"
+            );
+
 
             if (
-                gameChat.classList.contains("open") &&
-                chatInput
+                gameChat.classList.contains(
+                    "open"
+                )
             ) {
-                setTimeout(() => {
-                    chatInput.focus();
-                }, 50);
+
+                chatInput.focus();
+
+                scrollChatToBottom();
+
             }
+
         }
     );
+
 }
-/* =====================================================
-   RENDER CHAT
-===================================================== */
-
-const RENDER_CHAT_URL =
-    "https://my-roblox-private-chat.onrender.com";
-
-let lastChatTime = 0;
 
 
 /* =====================================================
-   SEND CHAT TO RENDER
+   SCROLL TO BOTTOM
 ===================================================== */
 
-async function sendChatMessage() {
+function scrollChatToBottom() {
 
-    if (!chatInput) {
+    requestAnimationFrame(
+        function() {
+
+            chatMessages.scrollTop =
+                chatMessages.scrollHeight;
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ADD CHAT MESSAGE
+===================================================== */
+
+function addChatMessage(message) {
+
+    const id =
+        getChatMessageId(message);
+
+
+    /*
+       Prevent duplicates.
+    */
+
+    if (
+        chatDisplayedMessages.has(id)
+    ) {
+
         return;
+
     }
 
-    const message =
-        chatInput.value.trim();
 
-    if (!message) {
-        return;
+    chatDisplayedMessages.add(id);
+
+
+    const messageTime =
+        Number(message.time || 0);
+
+
+    /*
+       Update last message time.
+    */
+
+    if (
+        messageTime >
+        chatLastMessageTime
+    ) {
+
+        chatLastMessageTime =
+            messageTime;
+
     }
+
+
+    /*
+       Outer message.
+    */
+
+    const wrapper =
+        document.createElement(
+            "div"
+        );
+
+    wrapper.className =
+        "chatMessage";
+
+
+    /*
+       Username.
+    */
+
+    const name =
+        document.createElement(
+            "span"
+        );
+
+    name.className =
+        "chatName";
+
+
+    const displayName =
+        message.displayName ||
+        message.user ||
+        "Unknown";
+
+
+    name.textContent =
+        displayName + ":";
+
+
+    name.style.color =
+        getChatNameColor(
+            message.user ||
+            displayName
+        );
+
+
+    /*
+       Message text.
+    */
+
+    const text =
+        document.createElement(
+            "span"
+        );
+
+
+    text.textContent =
+        " " + (message.msg || "");
+
+
+    /*
+       Build message.
+    */
+
+    wrapper.appendChild(
+        name
+    );
+
+    wrapper.appendChild(
+        text
+    );
+
+
+    chatMessages.appendChild(
+        wrapper
+    );
+
+
+    /*
+       Keep chat at bottom if
+       user is already near bottom.
+    */
+
+    const distanceFromBottom =
+        chatMessages.scrollHeight -
+        chatMessages.scrollTop -
+        chatMessages.clientHeight;
+
+
+    if (
+        distanceFromBottom < 120
+    ) {
+
+        scrollChatToBottom();
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD MESSAGES
+===================================================== */
+
+async function loadChatMessages() {
+
+    if (chatLoading) {
+
+        return;
+
+    }
+
+
+    chatLoading = true;
+
 
     try {
 
         const response =
             await fetch(
-                `${RENDER_CHAT_URL}/send`,
+
+                CHAT_SERVER +
+                "/messages?since=" +
+                encodeURIComponent(
+                    chatLastMessageTime
+                ),
+
                 {
-                    method: "POST",
+                    method: "GET",
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        user:
-                            multiplayerId,
-
-                        displayName:
-                            multiplayerName,
-
-                        msg:
-                            message,
-
-                        source:
-                            "website",
-
-                        private:
-                            false
-                    })
+                    cache: "no-store"
                 }
+
             );
 
 
         if (!response.ok) {
+
             throw new Error(
-                "Chat send failed"
+                "HTTP " +
+                response.status
             );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !Array.isArray(data)
+        ) {
+
+            throw new Error(
+                "Invalid server response"
+            );
+
+        }
+
+
+        /*
+           Oldest → newest.
+        */
+
+        data.sort(
+            function(a, b) {
+
+                return (
+                    Number(a.time || 0) -
+                    Number(b.time || 0)
+                );
+
+            }
+        );
+
+
+        data.forEach(
+            addChatMessage
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Chat loading error:",
+            error
+        );
+
+    } finally {
+
+        chatLoading = false;
+
+    }
+
+}
+
+
+/* =====================================================
+   SEND MESSAGE
+===================================================== */
+
+async function sendChatMessage() {
+
+    const msg =
+        chatInput.value.trim();
+
+
+    if (!msg) {
+
+        return;
+
+    }
+
+
+    if (!chatUsername) {
+
+        chatUsername =
+            getChatUsername();
+
+    }
+
+
+    if (!chatUsername) {
+
+        return;
+
+    }
+
+
+    chatSend.disabled = true;
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                CHAT_SERVER +
+                "/send",
+
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            user:
+                                chatUsername,
+
+                            displayName:
+                                chatUsername,
+
+                            msg:
+                                msg,
+
+                            source:
+                                "game",
+
+                            private:
+                                false
+
+                        })
+
+                }
+
+            );
+
+
+        if (!response.ok) {
+
+            const errorText =
+                await response.text();
+
+
+            throw new Error(
+
+                "HTTP " +
+                response.status +
+                " " +
+                errorText
+
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        /*
+           Server can immediately return
+           the created message.
+        */
+
+        if (
+            result &&
+            result.message
+        ) {
+
+            addChatMessage(
+                result.message
+            );
+
         }
 
 
         chatInput.value = "";
 
+        chatInput.focus();
+
+
+        scrollChatToBottom();
+
+
     } catch (error) {
 
         console.error(
-            "Chat error:",
+            "Chat send error:",
             error
         );
+
+
+        alert(
+            "Message could not be sent."
+        );
+
+
+    } finally {
+
+        chatSend.disabled = false;
+
     }
+
 }
+
+
+/* =====================================================
+   SEND BUTTON
+===================================================== */
+
+if (chatSend) {
+
+    chatSend.addEventListener(
+        "click",
+        function(event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            sendChatMessage();
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   ENTER TO SEND
+===================================================== */
+
+if (chatInput) {
+
+    chatInput.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                event.preventDefault();
+
+                sendChatMessage();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   START CHAT
+===================================================== */
+
+function startGameChat() {
+
+    if (chatStarted) {
+
+        return;
+
+    }
+
+
+    chatStarted = true;
+
+
+    chatUsername =
+        getChatUsername();
+
+
+    /*
+       Initial message load.
+    */
+
+    loadChatMessages();
+
+
+    /*
+       Same 500ms polling system
+       as your original chat.
+    */
+
+    setInterval(
+        loadChatMessages,
+        500
+    );
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+startGameChat();       
 
 /* =====================================================
    MULTIPLAYER
