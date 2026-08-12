@@ -26,6 +26,44 @@ const MAP_CENTER_Y =
     WORLD_HEIGHT / 2;
 
 
+function isWalkable(x, y) {
+    return (
+        x >= 0 &&
+        x <= WORLD_WIDTH &&
+        y >= 0 &&
+        y <= WORLD_HEIGHT
+    );
+}
+
+function rect(x, y, w, h, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+}
+
+function circle(x, y, radius, color) {
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function roundRect(x, y, w, h, radius, color) {
+    ctx.fillStyle = color;
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x,
+        y,
+        w,
+        h,
+        radius
+    );
+
+    ctx.fill();
+}
+
 /* =====================================================
    width height initialization
 ===================================================== */
@@ -103,15 +141,11 @@ function randomPlayerColor() {
 
 const player = {
 
-    x:
-        centerIsland.x +
-        centerIsland.w / 2,
+    x: MAP_CENTER_X,
 
-    y:
-        centerIsland.y +
-        centerIsland.h / 2,
+    y: MAP_CENTER_Y,
 
-    speed: 230,
+    speed: 300,
 
     color:
         randomPlayerColor(),
@@ -138,7 +172,7 @@ const camera = {
 
     minZoom: .45,
 
-    maxZoom: 3.5
+    maxZoom: 7
 };
 
 
