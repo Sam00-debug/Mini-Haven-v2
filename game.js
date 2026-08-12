@@ -26,6 +26,30 @@ const MAP_CENTER_Y =
     WORLD_HEIGHT / 2;
 
 
+/* =====================================================
+   width height initialization
+===================================================== */
+
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 /* =====================================================
    PNG MAP
@@ -75,12 +99,6 @@ function randomPlayerColor() {
 }
 
 
-const centerIsland =
-    islands.find(
-        i =>
-            i.row === 1 &&
-            i.col === 1
-    );
 
 
 const player = {
