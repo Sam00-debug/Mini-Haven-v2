@@ -48,37 +48,23 @@ body {
    PLAYER CHAT BUBBLES
 ===================================================== */
 
-#chatBubbles {
-    position: fixed;
-
-    inset: 0;
-
-    pointer-events: none;
-
-    z-index: 35;
-
-    overflow: hidden;
-}
-
-
 .chatBubble {
-
-    position: absolute;
+    position: fixed;
 
     transform:
         translate(-50%, -100%);
 
-    max-width: 100px;
+    max-width: 220px;
 
     padding: 7px 10px;
 
     border-radius: 10px;
 
     background:
-        rgba(10, 15, 20, .88);
+        rgba(10, 15, 20, .92);
 
     border:
-        1px solid rgba(255,255,255,.12);
+        2px solid #111;
 
     color: white;
 
@@ -93,92 +79,13 @@ body {
     overflow-wrap: anywhere;
 
     box-shadow:
-        0 5px 18px rgba(0,0,0,.30);
+        0 5px 18px rgba(0,0,0,.35);
 
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
 
     animation:
         chatBubbleIn .15s ease-out;
 }
-
-
-.chatBubbleName {
-
-    display: block;
-
-    margin-bottom: 2px;
-
-    font-size: 10px;
-
-    font-weight: 700;
-
-    opacity: .85;
-}
-
-
-.chatBubbleText {
-
-    display: block;
-
-    font-size: 15px;
-
-    color: white;
-}
-
-
-.chatBubble::after {
-
-    content: "";
-
-    position: absolute;
-
-    left: 50%;
-
-    bottom: -5px;
-
-    width: 9px;
-    height: 9px;
-
-    background:
-        rgba(10, 15, 20, .88);
-
-    border-right:
-        1px solid rgba(255,255,255,.12);
-
-    border-bottom:
-        1px solid rgba(255,255,255,.12);
-
-    transform:
-        translateX(-50%)
-        rotate(45deg);
-}
-
-
-@keyframes chatBubbleIn {
-
-    from {
-
-        opacity: 0;
-
-        transform:
-            translate(-50%, -90%)
-            scale(.9);
-
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform:
-            translate(-50%, -100%)
-            scale(1);
-
-    }
-
-}
-
 
 /* =====================================================
    PLAYER INFO
