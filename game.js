@@ -13,6 +13,143 @@ ctx.imageSmoothingEnabled = true;
 
 
 /* =====================================================
+   MINI HAVEN LOGIN
+===================================================== */
+
+const loginScreen =
+    document.getElementById("loginScreen");
+
+const displayNameInput =
+    document.getElementById("displayNameInput");
+
+const startGameButton =
+    document.getElementById("startGameButton");
+
+
+let displayName = "";
+
+
+/* Load saved name */
+
+try {
+
+    displayName =
+        localStorage.getItem(
+            "minihaven_display_name"
+        ) || "";
+
+} catch (error) {
+
+    console.warn(
+        "Could not load display name:",
+        error
+    );
+
+}
+
+
+/* Put saved name into input */
+
+if (
+    displayNameInput &&
+    displayName
+) {
+
+    displayNameInput.value =
+        displayName;
+
+}
+
+
+/* Start game */
+
+function startMiniHaven() {
+
+    const name =
+        displayNameInput.value.trim();
+
+
+    if (!name) {
+
+        displayNameInput.focus();
+
+        return;
+    }
+
+
+    displayName =
+        name.slice(0, 20);
+
+
+    /* Save name */
+
+    try {
+
+        localStorage.setItem(
+            "minihaven_display_name",
+            displayName
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Could not save display name:",
+            error
+        );
+
+    }
+
+
+    /* Hide login */
+
+    if (loginScreen) {
+
+        loginScreen.style.display =
+            "none";
+
+    }
+
+
+    /* Use name for multiplayer */
+
+    multiplayerName =
+        displayName;
+}
+
+
+/* Start button */
+
+if (startGameButton) {
+
+    startGameButton.addEventListener(
+        "click",
+        startMiniHaven
+    );
+
+}
+
+
+/* Enter key */
+
+if (displayNameInput) {
+
+    displayNameInput.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                startMiniHaven();
+
+            }
+
+        }
+    );
+
+}
+/* =====================================================
    WORLD
 ===================================================== */
 
@@ -2017,27 +2154,14 @@ let multiplayerId =
 
 let multiplayerName = "";
 
-
 try {
 
     multiplayerName =
         localStorage.getItem(
-            "minihaven_username"
+            "minihaven_display_name"
         ) || "";
 
 } catch {}
-
-
-if (!multiplayerName) {
-
-    multiplayerName =
-        "Player" +
-        Math.floor(
-            Math.random() *
-            9999
-        );
-}
-
 
 const remotePlayers =
     new Map();
@@ -3423,5 +3547,12 @@ requestAnimationFrame(
     gameLoop
 );
 
+if (displayName) {
 
-connectMultiplayer();
+    if (loginScreen) {
+        loginScreen.style.display = "none";
+    }
+
+    if (!multiplayerConnected) {
+    connectMultiplayer();
+}
