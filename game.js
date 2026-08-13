@@ -1060,8 +1060,7 @@ function movePlayer(
    CHAT SYSTEM
 ===================================================== */
 
-const CHAT_SERVER =
-    "https://my-roblox-private-chat.onrender.com";
+
 
 
 /* =====================================================
@@ -1531,151 +1530,31 @@ async function loadChatMessages() {
    SEND MESSAGE
 ===================================================== */
 
-async function sendChatMessage() {
+
+function sendChatMessage() {
 
     const msg =
         chatInput.value.trim();
 
+    if (!msg) return;
 
-    if (!msg) {
-
+    if (
+        !socket ||
+        socket.readyState !== WebSocket.OPEN
+    ) {
         return;
-
     }
 
+    socket.send(
+        JSON.stringify({
+            type: "chat",
+            displayName: multiplayerName,
+            msg: msg
+        })
+    );
 
-    if (!chatUsername) {
-
-        chatUsername =
-            getChatUsername();
-
-    }
-
-
-    if (!chatUsername) {
-
-        return;
-
-    }
-
-
-    chatSend.disabled = true;
-
-
-    try {
-
-        const response =
-            await fetch(
-
-                CHAT_SERVER +
-                "/send",
-
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-    JSON.stringify({
-
-        user:
-            chatUsername,
-
-        displayName:
-            chatUsername,
-
-        msg:
-            msg,
-
-        source:
-            "game",
-
-        private:
-            false,
-
-        playerId:
-            multiplayerId
-
-    })
-
-
-                }
-
-            );
-
-
-        if (!response.ok) {
-
-            const errorText =
-                await response.text();
-
-
-            throw new Error(
-
-                "HTTP " +
-                response.status +
-                " " +
-                errorText
-
-            );
-
-        }
-
-
-        const result =
-            await response.json();
-
-
-        /*
-           Server can immediately return
-           the created message.
-        */
-
-        if (
-            result &&
-            result.message
-        ) {
-
-            addChatMessage(
-                result.message
-            );
-
-        }
-
-
-        chatInput.value = "";
-
-        chatInput.focus();
-
-
-        scrollChatToBottom();
-
-
-    } catch (error) {
-
-        console.error(
-            "Chat send error:",
-            error
-        );
-
-
-        alert(
-            "Message could not be sent."
-        );
-
-
-    } finally {
-
-        chatSend.disabled = false;
-
-    }
-
+    chatInput.value = "";
+    chatInput.focus();
 }
 
 
@@ -3524,7 +3403,8 @@ if (displayName) {
         loginScreen.style.display = "none";
     }
 
-    if (!multiplayerConnected) {
+    multiplayerName = displayName;
+
     connectMultiplayer();
 }
 }
