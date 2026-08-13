@@ -11,6 +11,17 @@ const ctx =
 
 ctx.imageSmoothingEnabled = true;
 
+/*multiplayer declaration*/
+
+let multiplayerName = "";
+
+let multiplayerId =
+    crypto.randomUUID
+        ? crypto.randomUUID()
+        : "player-" +
+          Math.random()
+              .toString(36)
+              .slice(2);
 
 /* =====================================================
    MINI HAVEN LOGIN
@@ -49,6 +60,7 @@ try {
 
 
 /* Put saved name into input */
+
 
 if (
     displayNameInput &&
@@ -1136,37 +1148,7 @@ function getChatUsername() {
     }
 
 
-    /*
-       Otherwise use saved name.
-    */
-
-    try {
-
-        const saved =
-            localStorage.getItem(
-                "mychat_username"
-            );
-
-        if (saved) {
-
-            return saved;
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Could not read saved username:",
-            error
-        );
-
-    }
-
-
-    /*
-       Fallback.
-    */
-
+    
     return "Player";
 
 }
@@ -2142,17 +2124,6 @@ let socket = null;
 let multiplayerConnected =
     false;
 
-
-let multiplayerId =
-    crypto.randomUUID
-        ? crypto.randomUUID()
-        : "player-" +
-          Math.random()
-              .toString(36)
-              .slice(2);
-
-
-let multiplayerName = "";
 
 try {
 
@@ -3555,4 +3526,5 @@ if (displayName) {
 
     if (!multiplayerConnected) {
     connectMultiplayer();
+}
 }
