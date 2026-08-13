@@ -401,10 +401,9 @@ font-family: 'Pixelify Sans', sans-serif;
         left: 2px;
         top: 2px;
 
-        width: calc(100vw - 60px);
-        max-width: 320px;
+        width: 250px;
 
-        height: 200px;
+        height: 150px;
     }
 }
 
@@ -550,7 +549,7 @@ font-family: 'Pixelify Sans', sans-serif;
 
     min-width: 0;
 
-    height: 25px;
+    height: 40px;
 
     padding:
         4px;
@@ -567,7 +566,7 @@ font-family: 'Pixelify Sans', sans-serif;
 
     color: white;
 
-    font-size: 8px;
+    font-size: 15px;
 
     touch-action: manipulation;
 }
