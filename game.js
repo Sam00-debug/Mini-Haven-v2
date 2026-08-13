@@ -124,9 +124,12 @@ function startMiniHaven() {
 
     /* Use name for multiplayer */
 
-    multiplayerName =
-        displayName;
-}
+multiplayerName =
+    displayName;
+
+/* Connect to multiplayer */
+
+connectMultiplayer();
 
 
 /* Start button */
@@ -1069,10 +1072,6 @@ function movePlayer(
 
 let chatUsername = "";
 
-let chatLastMessageTime = 0;
-
-let chatLoading = false;
-
 let chatStarted = false;
 
 const chatDisplayedMessages =
@@ -1426,105 +1425,19 @@ showPlayerChatBubble(
 
 }
 
+/* idk new load message*/
 
+function startGameChat() {
 
-/* =====================================================
-   LOAD MESSAGES
-===================================================== */
-
-async function loadChatMessages() {
-
-    if (chatLoading) {
-
+    if (chatStarted) {
         return;
-
     }
 
+    chatStarted = true;
 
-    chatLoading = true;
-
-
-    try {
-
-        const response =
-            await fetch(
-
-                CHAT_SERVER +
-                "/messages?since=" +
-                encodeURIComponent(
-                    chatLastMessageTime
-                ),
-
-                {
-                    method: "GET",
-
-                    cache: "no-store"
-                }
-
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        if (
-            !Array.isArray(data)
-        ) {
-
-            throw new Error(
-                "Invalid server response"
-            );
-
-        }
-
-
-        /*
-           Oldest → newest.
-        */
-
-        data.sort(
-            function(a, b) {
-
-                return (
-                    Number(a.time || 0) -
-                    Number(b.time || 0)
-                );
-
-            }
-        );
-
-
-        data.forEach(
-            addChatMessage
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Chat loading error:",
-            error
-        );
-
-    } finally {
-
-        chatLoading = false;
-
-    }
-
+    chatUsername =
+        getChatUsername();
 }
-
 
 /* =====================================================
    SEND MESSAGE
@@ -1606,44 +1519,6 @@ if (chatInput) {
 }
 
 
-/* =====================================================
-   START CHAT
-===================================================== */
-
-function startGameChat() {
-
-    if (chatStarted) {
-
-        return;
-
-    }
-
-
-    chatStarted = true;
-
-
-    chatUsername =
-        getChatUsername();
-
-
-    /*
-       Initial message load.
-    */
-
-    loadChatMessages();
-
-
-    /*
-       Same 500ms polling system
-       as your original chat.
-    */
-
-    setInterval(
-        loadChatMessages,
-        500
-    );
-
-}
 
 
 /* =====================================================
@@ -2188,7 +2063,31 @@ function handleMultiplayerMessage(
         return;
     }
 
+if (
+    data.type ===
+    "chat"
+) {
 
+    addChatMessage({
+        time:
+            data.time,
+
+        user:
+            data.playerId,
+
+        displayName:
+            data.displayName,
+
+        msg:
+            data.msg,
+
+        source:
+            "multiplayer"
+    });
+
+    return;
+}
+   
     if (
         data.type ===
         "playerLeft"
@@ -3404,7 +3303,7 @@ if (displayName) {
     }
 
     multiplayerName = displayName;
-
+startGameChat();
     connectMultiplayer();
 }
-}
+
