@@ -371,41 +371,61 @@ font-family: 'Pixelify Sans', sans-serif;
 ===================================================== */
 
 #gameChat {
-
+#gameChat {
     position: fixed;
-
     left: 15px;
     top: 15px;
 
-    width:
-        min(
-            150px,
-            calc(100vw - 30px)
-        );
-
-    height: 100px;
+    width: 320px;
+    height: 240px;
 
     display: none;
-
     flex-direction: column;
 
-    background:
-        rgba(10,15,20,.48);
-
-    border:
-        1px solid rgba(255,255,255,.12);
-
+    background: rgba(10,15,20,.48);
+    border: 1px solid rgba(255,255,255,.12);
     border-radius: 16px;
-
-    
 
     z-index: 49;
 }
 
-
 #gameChat.open {
-
     display: flex;
+}
+
+/* MOBILE */
+@media (max-width: 699px) {
+    #gameChat {
+        left: 2px;
+        top: 2px;
+
+        width: min(300px, calc(100vw - 60px));
+        height: 200px;
+    }
+}
+
+/* LANDSCAPE MOBILE */
+@media (orientation: landscape) and (max-width: 900px) {
+    #gameChat {
+        left: 50px;
+        top: 10px;
+
+        width: 300px;
+        height: 180px;
+    }
+}
+
+/* SMALL PHONES */
+@media (max-width: 500px) and (orientation: portrait) {
+    #gameChat {
+        left: 50px;
+        top: 7px;
+
+        width: calc(100vw - 60px);
+        max-width: 320px;
+
+        height: 200px;
+    }
 }
 
 
@@ -482,7 +502,7 @@ font-family: 'Pixelify Sans', sans-serif;
     max-width: 75%;
 
     padding:
-        5px 9px;
+        1px 1px;
 
     border-radius: 9px;
 
@@ -491,7 +511,7 @@ font-family: 'Pixelify Sans', sans-serif;
 
     color: white;
 
-    font-size: 9px;
+    font-size: 5px;
 
     line-height: 1.35;
 
@@ -537,10 +557,10 @@ font-family: 'Pixelify Sans', sans-serif;
 
     min-width: 0;
 
-    height: 35px;
+    height: 25px;
 
     padding:
-        0 11px;
+        4px;
 
     border:
         1px solid rgba(255,255,255,.12);
@@ -554,7 +574,7 @@ font-family: 'Pixelify Sans', sans-serif;
 
     color: white;
 
-    font-size: 13px;
+    font-size: 8px;
 
     touch-action: manipulation;
 }
@@ -635,7 +655,7 @@ font-family: 'Pixelify Sans', sans-serif;
 ===================================================== */
 
 @media (
-    max-width: 699px
+    max-width: 690px
 ) {
 
     #joystick {
@@ -681,26 +701,6 @@ font-family: 'Pixelify Sans', sans-serif;
     max-width: 500px
 ) {
 
-    #gameChat {
-
-        top: 7px;
-        left: 50px;
-
-        width:
-            calc(100vw - 20px);
-
-        height: 180px;
-
-        border-radius: 14px;
-    }
-
-
-    #chatToggle {
-
-        left: 10px;
-        top: 10px;
-    }
-
 
     #joystick {
 
@@ -732,10 +732,7 @@ font-family: 'Pixelify Sans', sans-serif;
     max-height: 450px
 ) {
 
-    #gameChat {
 
-        height: 190px;
-    }
 
 
     #joystick {
