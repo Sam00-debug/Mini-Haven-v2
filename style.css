@@ -370,7 +370,7 @@ font-family: 'Pixelify Sans', sans-serif;
    CHAT PANEL
 ===================================================== */
 
-#gameChat {
+
 #gameChat {
     position: fixed;
     left: 15px;
@@ -393,33 +393,13 @@ font-family: 'Pixelify Sans', sans-serif;
     display: flex;
 }
 
-/* MOBILE */
+/* =========================
+   MOBILE
+========================= */
 @media (max-width: 699px) {
     #gameChat {
         left: 2px;
         top: 2px;
-
-        width: min(300px, calc(100vw - 60px));
-        height: 200px;
-    }
-}
-
-/* LANDSCAPE MOBILE */
-@media (orientation: landscape) and (max-width: 900px) {
-    #gameChat {
-        left: 50px;
-        top: 10px;
-
-        width: 300px;
-        height: 180px;
-    }
-}
-
-/* SMALL PHONES */
-@media (max-width: 500px) and (orientation: portrait) {
-    #gameChat {
-        left: 50px;
-        top: 7px;
 
         width: calc(100vw - 60px);
         max-width: 320px;
@@ -428,6 +408,19 @@ font-family: 'Pixelify Sans', sans-serif;
     }
 }
 
+
+/* =========================
+   DESKTOP
+========================= */
+@media (min-width: 700px) {
+    #gameChat {
+        left: 10px;
+        top: 10px;
+
+        width: 600px;
+        height: 300px;
+    }
+}
 
 /* =====================================================
    SCROLLABLE CHAT MESSAGES
