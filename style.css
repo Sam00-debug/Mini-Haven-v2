@@ -13,7 +13,7 @@ body {
 
     background: #111;
 
-    font-family: Arial, sans-serif;
+font-family: 'Pixelify Sans', sans-serif;
 
     touch-action: none;
 }
@@ -85,7 +85,7 @@ body {
 #loginBox h1 {
     margin: 0 0 24px;
 
-font-family: 'Bowlby One SC', 'Arial Black', sans-serif;
+font-family: 'Pixelify Sans', sans-serif;
     font-size: 38px;
     font-weight: 900;
     letter-spacing: 1px;
@@ -132,7 +132,7 @@ text-shadow: 3px 3px 0 #fff;
     border: none;
 
     border-radius: 12px;
-font-family: 'Bowlby One SC', 'Arial Black', sans-serif;
+font-family: 'Pixelify Sans', sans-serif;
     background-color: #20b858 !important;
     color: #fff !important;
     opacity: 1 !important;
@@ -204,7 +204,7 @@ font-family: 'Bowlby One SC', 'Arial Black', sans-serif;
     position: fixed;
 
     top: 15px;
-    left: 15px;
+    left: 100px;
 
     padding: 8px 13px;
 
@@ -224,8 +224,7 @@ font-family: 'Bowlby One SC', 'Arial Black', sans-serif;
 
     font-size: 13px;
 
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    
 }
 
 
