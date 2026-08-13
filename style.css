@@ -65,7 +65,10 @@ body {
 #loginBox {
     width: min(90vw, 380px);
 
-    background: #fff;
+    background-color: #20b858 !important;
+    color: #fff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 
     border: 2px solid #222;
 
@@ -126,10 +129,11 @@ body {
 
     border-radius: 12px;
 
-    background: #20b858;
-
-    color: white;
-
+    background-color: #20b858 !important;
+    color: #fff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    
     font-size: 17px;
 
     font-weight: bold;
