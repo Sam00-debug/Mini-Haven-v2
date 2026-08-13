@@ -1,6 +1,5 @@
 /* =====================================================
-   MINI HAVEN
-   CANVAS + MULTIPLAYER + 360 AIM
+   test1 web game
 ===================================================== */
 
 const canvas =
@@ -24,7 +23,7 @@ let multiplayerId =
               .slice(2);
 
 /* =====================================================
-   MINI HAVEN LOGIN
+   login saved in browser only 
 ===================================================== */
 
 const loginScreen =
@@ -130,7 +129,7 @@ multiplayerName =
 /* Connect to multiplayer */
 
 connectMultiplayer();
-
+}
 
 /* Start button */
 
